@@ -2,12 +2,12 @@
   "name": "nvgallery",
   "title": "nvgallery",
   "description": "A simple jQuery gallery plugin.",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "homepage": "https://github.com/strackovski/nvgallery",
   "author": {
-    "name": "Vladimir Strackovski",
-    "email": "vladimir.strackovski@gmail.com",
-    "url": "http://www.strackovski.net/"
+    "name": "Vladimir Stračkovski",
+    "email": "vlado@nv3.org",
+    "url": "http://www.nv3.org"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/strackovski/nvgallery/blob/master/LICENSE-MIT"
+      "url": "https://github.com/strackovski/nvgallery/blob/master/LICENSE.md"
     }
   ],
   "dependencies": {
