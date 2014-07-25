@@ -21,4 +21,6 @@ Note: You can set its width, otherwise it will take 100% of width of the parent.
 Call the plugin on the created div, inside your document.ready() and pass the images array as an argument.
 <pre>$(‘.wrap’).nvgallery(myPictures)</pre>
 
+### License
 
+Released under the MIT license. Please see the LICENSE file provided with this project.
