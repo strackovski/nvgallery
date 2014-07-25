@@ -1,3 +1,23 @@
+/* ===================================================
+ * nv/Gallery JavaScript Library
+ * http://github.com/strackovski/nvgallery
+ * http://www.nv3.org/gallery
+ * ===================================================
+ * Copyright 2014 Vladimir Stračkovski <vlado@nv3.org>
+ *
+ * Licensed under the MIT License;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://choosealicense.com/licenses/mit/
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================================================== */
+
 /*global $:false, jQuery:false */
 /*global console:false */
 /*jshint unused:false*/
@@ -11,8 +31,9 @@
         base.$el = $(el);
         base.pics = pics;
 
-
+        // Init - gets called first
         base.init = function () {
+            // Create control values
             base.ctrl = 0;
             base.secondCtrl = 0;
             base.autoPlay = 0;
@@ -21,50 +42,48 @@
             base.$isOpen = 0;
             base.scrollInterval = 0;
 
-            //extend options
+            // Extend default options with what user provided
             base.options = $.extend({}, $.fn.nvgallery.defaults, options);
 
-            //make basic DOM elements and cache them for later
-
-            //lightbox, lightbox shadow
+            // Make basic DOM elements and cache them for later
+            // Lightbox, Lightbox shadow
             base.$el.append('<div class="nv-gallerious-lightbox-shadow">');
             base.$el.append('<div class="nv-gallerious-lightbox"></div>');
             base.$lightbox = base.$el.find('.nv-gallerious-lightbox');
             base.$lightboxshadow = base.$el.find('.nv-gallerious-lightbox-shadow');
 
-            //container
+            // Container
             base.$el.append('<div class="nv-gallerious-container"></div>');
             base.$container = base.$el.find('.nv-gallerious-container');
 
-            //main
+            // Main
             base.$container.append('<div class="nv-gallerious-main"></div>');
             base.$main = base.$container.find('.nv-gallerious-main');
 
-            //nav
+            // Nav
             base.$main.append('<div class="nv-gallerious-nav"></div>');
             base.$nav = base.$main.find('.nv-gallerious-nav');
 
-            //bar
+            // Bar (for title, controls)
             base.$container.append('<div class="nv-gallerious-bar"></div>');
             base.$bar = base.$container.find('.nv-gallerious-bar');
 
-            //thumbnails view
+            // Thumbnails view
             base.$container.append('<div class="nv-gallerious-layer"></div>');
             base.$layer = base.$container.find('.nv-gallerious-layer');
 
-            //image
+            // Image - show first image in the array
             base.$main.append('<div class="nv-gallerious-image">' +
                 '<img class="nv-gallerious-img" src="' + base.pics[base.ctrl].path + '" alt="' + base.pics[base.ctrl].description + '"></div>');
             base.$imageContainer = base.$main.find('.nv-gallerious-image');
             base.$image = base.$imageContainer.find('.nv-gallerious-img');
 
-
             base.components();
         };
 
+        // Add components to gallery and fill them with provided values (from array of images)
         base.components = function () {
-
-            //bar components
+            // Set up Bar (counter, controls, description field)
             base.$bar.append('<div class="nv-gallerious-bar-counter"></div>');
             base.$bar.append('<div class="nv-gallerious-bar-slideshow"></div>');
             base.$bar.append('<div class="nv-gallerious-bar-text">' +
@@ -87,7 +106,7 @@
             base.$lightboxLink = base.$bar.find('.nv-gallerious-bar-lightbox');
             base.$thumbnailsLink = base.$bar.find('.nv-gallerious-bar-thumbnails');
 
-            //navigation
+            // Build Navigation
             base.$nav.append('<div class="nv-gallerious-nav-left"><</div>');
             base.$nav.append('<div class="nv-gallerious-nav-right">></div>');
             base.$navLeft = base.$nav.find('.nv-gallerious-nav-left');
@@ -98,13 +117,19 @@
             base.setup();
         };
 
+        // Set up
         base.setup = function () {
             var margin, oldWidth;
 
+            // On image load (every time an image gets loaded)
             base.$image.load(function () {
                 base.$image.css({width: '100%'});
                 var imageHeight = base.$image.height(),
                     containerHeight = base.$container.height();
+
+                // Adjust image based on its dimensions
+                // to take the full width/height of the container
+                // Height is bigger
                 if (imageHeight > containerHeight) {
                     margin = -(imageHeight - containerHeight) / 2;
                     base.$image.css({marginTop: margin});
@@ -118,6 +143,7 @@
                     }
                 }
 
+                // Width is bigger
                 if (imageHeight < containerHeight) {
                     oldWidth = base.$image.width();
                     base.$image.css({height: containerHeight});
@@ -125,13 +151,19 @@
                     margin = -(base.$image.width() - base.$container.width()) / 2;
                     base.$image.css({marginLeft: margin});
                 }
+                // Animate fadeIn
                 base.$image.animate({opacity: 1});
             });
 
-            //show image in lightbox
+            /*
+             Lightbox handler
+             */
             base.$lightboxLink.on('click', function () {
+
+                // Call lightbox() - set shadow, bind controls...
                 base.lightbox();
                 base.secondCtrl = base.ctrl;
+
                 var currImage = 0;
                 var currDescription = 0;
                 if (base.options.effect === 'fade') {
@@ -144,6 +176,8 @@
                     '<div class="nv-gallerious-prev"><</div>' +
                     '<div class="nv-gallerious-next">></div>' +
                     '<div class="nv-gallerious-lightbox-description">' + currDescription + '</div>');
+
+                //Take the whole size of the window
                 var max_size = $(window).height() - 20;
                 var max_size_width = $(window).width() - 20;
                 base.$lightbox.find('img').load(function () {
@@ -169,33 +203,32 @@
                 });
             });
 
-            //show/hide bar
+            // Show/hide bar
             if (base.options.hideMenuBar === true || base.options.disableMenuBar === true) {
                 base.$bar.css('display', 'none');
             }
 
-            //prevent bar from hiding if thumbnails view is active
-
+            // Prevent bar from hiding if thumbnails view is active
             if (base.options.disableMenuBar === false) {
                 if (base.options.hideMenuBar === true) {
                     base.$el.mouseenter(function () {
                         base.$bar.slideDown(200);
                     }).mouseleave(function () {
-                        if (base.$isOpen === 0) {
-                            base.$bar.slideUp();
-                        }
-                    });
+                            if (base.$isOpen === 0) {
+                                base.$bar.slideUp();
+                            }
+                        });
                 }
             }
 
-            //build thumbnails view
+            // Build thumbnails view
             var i;
             for (i = 0; i < base.$picLength; i += 1) {
                 base.$layer.append('<div class="nv-gallerious-thumb"><img src="' + base.pics[i].path + '"></div>');
                 base.$thumbPicture = base.$layer.find('.nv-gallerious-thumb img');
             }
 
-            //append the correct icon to the slide show button
+            // Show the correct icon for the slideshow button (play/pause)
             if (base.options.autoplay === true) {
                 base.playCtrl = 'fa-pause';
             } else {
@@ -203,7 +236,7 @@
             }
             base.$barSlideshow.append('<i class="fa ' + base.playCtrl + '"></i>');
 
-            //slideshow handler
+            // Slideshow handler
             base.$barSlideshow.on('click', function () {
                 if (base.autoPlay === 0) {
                     base.autoPlay = 1;
@@ -218,8 +251,7 @@
                 }
             });
 
-            //animate image description on hover if text is longer than container
-
+            // Animate image description on hover if text is longer than container
             base.$barText.mouseenter(function () {
                 clearInterval(base.scrollInterval);
                 var margin = 1;
@@ -233,10 +265,11 @@
                 };
                 scrollText();
             }).mouseleave(function () {
-                clearInterval(base.scrollInterval);
-                base.$barTextDescription.css('margin-left', 0);
-            });
+                    clearInterval(base.scrollInterval);
+                    base.$barTextDescription.css('margin-left', 0);
+                });
 
+            // Call resize() on window resize
             $(window).resize(function () {
                 base.resize();
             });
@@ -245,13 +278,13 @@
         };
 
         base.css = function () {
-
-            //container style
+            // Container style
             base.$container.css({height: base.$container.width() * base.options.height, overflow: 'hidden'});
             base.$container.css(base.options.containerCss);
 
-            //bar style
+            // Bar style
             base.$bar.css({background: base.options.containerCss.background});
+            base.$main.css({background: base.options.mainCss.background});
             base.$bar.css(base.options.barCss);
             base.$barRight.css({background: base.options.containerCss.background});
             base.$barRight.css({background: base.options.barCss.background});
@@ -260,8 +293,7 @@
         };
 
         base.clicks = function () {
-
-            //right nav handler
+            // Right nav handler
             base.$navRight.on('click', function () {
                 if (base.ctrl === base.$picLength - 1) {
                     base.ctrl = 0;
@@ -269,7 +301,7 @@
                     base.ctrl = base.ctrl + 1;
                 }
                 if (base.options.effect === 'fade') {
-                    base.$image.fadeOut(30, function () {
+                    base.$image.fadeOut(base.options.fadeDuration, function () {
                         base.$image.css({height: '', width: '', marginTop: '', marginLeft: ''});
                         base.$image.css({opacity: 0});
                         base.$image.attr('src', base.pics[base.ctrl].path);
@@ -285,7 +317,7 @@
                 }
             });
 
-            //left nav handler
+            // Left nav handler
             base.$navLeft.on('click', function () {
                 if (base.ctrl === 0) {
                     base.ctrl = base.$picLength - 1;
@@ -293,7 +325,7 @@
                     base.ctrl = base.ctrl - 1;
                 }
                 if (base.options.effect === 'fade') {
-                    base.$image.fadeOut(30, function () {
+                    base.$image.fadeOut(base.options.fadeDuration, function () {
                         base.$image.css({height: '', width: '', marginTop: '', marginLeft: ''});
                         base.$image.css({opacity: 0});
                         base.$image.attr('src', base.pics[base.ctrl].path);
@@ -309,7 +341,7 @@
                 }
             });
 
-            //thumbnails link click
+            // Thumbnails handler
             base.$thumbnailsLink.on('click', function () {
                 if (base.$isOpen === 0) {
                     base.$isOpen = 1;
@@ -320,7 +352,7 @@
                 }
             });
 
-            //thumbnails view handler
+            // Thumbnails view handler (selection of image to show)
             var i;
             base.$thumbPicture.on('click', function () {
                 base.$isOpen = 0;
@@ -334,7 +366,7 @@
 
                 if (base.$image.attr('src') !== base.pics[base.ctrl].path) {
                     if (base.options.effect === 'fade') {
-                        base.$image.fadeOut(30, function () {
+                        base.$image.fadeOut(base.options.fadeDuration, function () {
                             base.$image.css({height: '', width: '', marginTop: '', marginLeft: ''});
                             base.$layer.slideToggle(200);
                             base.$image.css({opacity: 0});
@@ -355,6 +387,7 @@
             });
         };
 
+        // Resize - fluid effect
         base.resize = function () {
             var margin,
                 fluidWidth = base.$container.width(),
@@ -378,8 +411,9 @@
 
         };
 
+        // Lightbox
         base.lightbox = function () {
-            //lightbox: ESC closes the lightbox
+            // ESC closes the lightbox
             $(document).keyup(function (e) {
                 if (base.$lightbox.css('display') === 'block') {
                     if (e.keyCode === 27) {
@@ -392,7 +426,7 @@
                 }
             });
 
-            //lightbox: click on shadow closes the lightbox
+            // Click on shadow closes the lightbox
             base.$lightboxshadow.on('click', function () {
                 base.$lightbox.fadeOut(120, function () {
                     base.$lightbox.html('');
@@ -401,20 +435,22 @@
                 base.$lightboxshadow.fadeOut(140);
             });
 
-            //lightbox: close button
+            // Close button
             base.$lightbox.on('click', '.nv-gallerious-lightbox-close', function () {
                 base.$lightbox.fadeOut(120, function () {
+                    // Clear contents
                     base.$lightbox.html('');
                     base.$lightbox.removeAttr('style');
                 });
                 base.$lightboxshadow.fadeOut(140);
             });
 
-            //lightbox: show next picture
+            // Show next picture
             base.$lightbox.on('click', '.nv-gallerious-next', function () {
+                // If the last image in array is shown, set pointer to the first image
                 if (base.secondCtrl ===  base.$picLength - 1) {
                     base.secondCtrl = 0;
-                } else {
+                } else { // Else, increment pointer
                     base.secondCtrl = base.secondCtrl + 1;
                 }
                 base.$lightbox.find('img').hide(0, function () {
@@ -425,11 +461,12 @@
                 }).show();
             });
 
-            //lightbox: show previous picture
+            // Show previous picture
             base.$lightbox.on('click', '.nv-gallerious-prev', function () {
+                // If the first image in array is shown, set pointer to the last image
                 if (base.secondCtrl === 0) {
                     base.secondCtrl = base.pics.length - 1;
-                } else {
+                } else { // Else, decrement pointer
                     base.secondCtrl = base.secondCtrl - 1;
                 }
                 base.$lightbox.find('img').hide(0, function () {
@@ -441,14 +478,14 @@
                 }).show();
             });
 
+            // Simulate Lightbox button click on image click
             base.$image.on('click', function () {
                 base.$lightboxLink.trigger('click');
 
             });
         };
 
-
-        //call init, get everything rolling
+        // Call init, get everything rolling
         base.init();
     };
 
@@ -461,6 +498,7 @@
         });
     };
 
+    // Defaults
     $.fn.nvgallery.defaults = {
         height: 0.5625,
         leftArrowCss: {
@@ -482,6 +520,9 @@
             color: '#fff',
             fontWeight: 100
         },
+        mainCss: {
+            background:'#111'
+        },
         effect: 'fade',
         barCss: {},
         disableMenuBar: false,
@@ -489,8 +530,7 @@
         autoplay: false,
         interval: 8000,
         disableNav: false,
-        hideNav: false
+        hideNav: false,
+        fadeDuration:30
     };
-
-
 }(jQuery, window, document));
