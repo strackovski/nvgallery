@@ -1,5 +1,5 @@
 # nvgallery
-A jQuery plugin for creating galleries fast. Visit the [nvgallery](http://www.strackovski.net/nvgallery/) page for a detailed documentation and to see nvgallery in action.
+A jQuery plugin for creating galleries fast. Visit the [nvgallery](http://www.envee.eu/nvgallery/) page for a detailed documentation and to see nvgallery in action.
 
 ### Dependencies
  - jQuery
